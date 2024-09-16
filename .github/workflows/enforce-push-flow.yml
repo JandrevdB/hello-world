@@ -5,13 +5,15 @@ on:
     branches:
       - dev
       - main
-      - test-dev
 
 jobs:
   enforce-flow:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if correct branch flow
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate branch push flow
         run: |
           BRANCH="${{ github.ref_name }}"
           PREVIOUS_BRANCH=$(git log -1 --pretty=%d)
@@ -25,5 +27,6 @@ jobs:
             echo "Pushes to 'main' must come from 'dev' branch"
             exit 1
           fi
+
       - name: Success
         run: echo "Branch flow is correct."
