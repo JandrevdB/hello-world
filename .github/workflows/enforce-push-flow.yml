@@ -1,0 +1,29 @@
+name: Enforce Branch Flow
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+      - test-dev
+
+jobs:
+  enforce-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if correct branch flow
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          PREVIOUS_BRANCH=$(git log -1 --pretty=%d)
+          
+          if [[ "$BRANCH" == "dev" && ! "$PREVIOUS_BRANCH" == *"test-dev"* ]]; then
+            echo "Pushes to 'dev' must come from 'test-dev' branch"
+            exit 1
+          fi
+          
+          if [[ "$BRANCH" == "main" && ! "$PREVIOUS_BRANCH" == *"dev"* ]]; then
+            echo "Pushes to 'main' must come from 'dev' branch"
+            exit 1
+          fi
+      - name: Success
+        run: echo "Branch flow is correct."
